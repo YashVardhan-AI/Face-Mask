@@ -19,7 +19,7 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 	# pass the blob through the network and obtain the face detections
 	faceNet.setInput(blob)
 	detections = faceNet.forward()
-	print(detections.shape)
+	
 
 	
 	faces = []
@@ -84,7 +84,7 @@ vs = VideoStream(src=0).start()
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream and resize it
-	# to have a maximum width of 400 pixels
+	# to have a maximum width of 1000 pixels
 	frame = vs.read()
 	frame = imutils.resize(frame, width=1080)
 
@@ -112,6 +112,8 @@ while True:
 		cv2.putText(frame, label, (startX, startY - 10),
 			cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
 		cv2.rectangle(frame, (startX, startY), (endX, endY), color, 2)
+		if mask > withoutMask:
+			print ("mask is activated")
 
 	# show the output frame
 	cv2.imshow("Frame", frame)
