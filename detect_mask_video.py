@@ -1,4 +1,4 @@
- # import the necessary packages
+# import the necessary packages
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
@@ -9,30 +9,32 @@ import time
 import cv2
 import os
 
-def detect_and_predict_mask(frame, faceNet, maskNet):
-# construct a blob	
-	
+def detect_and_predict_mask(frame, faceNet,maskNet):
+	# grab the dimensions of the frame and then construct a blob
+	# from it
 	(h, w) = frame.shape[:2]
-	blob = cv2.dnn.blobFromImage(frame, 1.0, (224,224),
+	blob = cv2.dnn.blobFromImage(frame, 1.0, (224, 224),
 		(104.0, 177.0, 123.0))
 
 	# pass the blob through the network and obtain the face detections
 	faceNet.setInput(blob)
 	detections = faceNet.forward()
-	
+	print(detections.shape)
 
-	
+	# initialize our list of faces, their corresponding locations,
+	# and the list of predictions from our face mask network
 	faces = []
 	locs = []
 	preds = []
 
 	# loop over the detections
 	for i in range(0, detections.shape[2]):
-		# extract the confidence
-		
+		# extract the confidence (i.e., probability) associated with
+		# the detection
 		confidence = detections[0, 0, i, 2]
 
-		
+		# filter out weak detections by ensuring the confidence is
+		# greater than the minimum confidence
 		if confidence > 0.5:
 			# compute the (x, y)-coordinates of the bounding box for
 			# the object
@@ -70,8 +72,8 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 	return (locs, preds)
 
 # load our serialized face detector model from disk
-prototxtPath = r"face_detector\deploy.prototxt"
-weightsPath = r"face_detector\res10_300x300_ssd_iter_140000.caffemodel"
+prototxtPath = "./face_detector/deploy.prototxt"
+weightsPath = "./face_detector/res10_300x300_ssd_iter_140000.caffemodel"
 faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 
 # load the face mask detector model from disk
@@ -84,9 +86,9 @@ vs = VideoStream(src=0).start()
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream and resize it
-	# to have a maximum width of 1000 pixels
+	# to have a maximum width of 400 pixels
 	frame = vs.read()
-	frame = imutils.resize(frame, width=1080)
+	frame = imutils.resize(frame, width=400)
 
 	# detect faces in the frame and determine if they are wearing a
 	# face mask or not
@@ -112,8 +114,6 @@ while True:
 		cv2.putText(frame, label, (startX, startY - 10),
 			cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
 		cv2.rectangle(frame, (startX, startY), (endX, endY), color, 2)
-		if mask > withoutMask:
-			print ("mask is activated")
 
 	# show the output frame
 	cv2.imshow("Frame", frame)

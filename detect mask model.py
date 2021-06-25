@@ -24,7 +24,7 @@ INIT_LR = 1e-4
 EPOCHS = 60
 BS = 32
 
-DIRECTORY = r"F:\PURU\programming\Face-Mask-Detection-master\Face-Mask-Detection-master\dataset"
+DIRECTORY = "./dataset" 
 CATEGORIES = ["with_mask", "without_mask"]
 
 
@@ -79,6 +79,8 @@ headModel = Dense(2, activation="softmax")(headModel)
 
 
 model = Model(inputs=baseModel.input, outputs=headModel)
+
+model.summary()
 
 
 for layer in baseModel.layers:
